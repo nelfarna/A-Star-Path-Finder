@@ -1,0 +1,25 @@
+<html>
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+		<link rel='stylesheet' href='style/style.css' />
+	</head>
+	<body>
+		<h4>Click on any gray cell to see the shortest path from the green cell.</h4>
+		<div class="main">
+			<div class="left">
+				<canvas id="Canvas"></canvas>
+			</div>
+			<div class="right">
+				<input type="checkbox" id="cbx"><label for="cbx">Allow Diagonals</label>
+				<br /><br />
+				<button type="button" id="regen">Regenerate Grid</button> 
+			</div>
+		</div>
+		<script src="js/grid.js"></script>
+		<script src="js/astar.js"></script>
+
+		<script src="js/index.js"></script>
+
+	</body>
+</html>
+
