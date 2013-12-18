@@ -33,7 +33,6 @@
 						} else {
 							ctx.strokeStyle = "white";
 							ctx.strokeRect(x*cellWidth, y*cellWidth, cellWidth, cellWidth);
-
 						}
 					}
 				}
@@ -42,7 +41,7 @@
 			// paint animated path
 			function paintPath (path) {
 				
-				if (path.length > 0) {
+				if (path.length > 2) { // only paint path if current and target nodes are not adjacent to each other
 
 					var i = 1, n = 1, twice = false;
 
@@ -57,9 +56,9 @@
 						ctx.strokeRect(path[i].pos.x*cellWidth, path[i].pos.y*cellWidth, cellWidth, cellWidth);
 						
 						i++;
-						if(i === path.length - 1 && twice) {
+						if(i >= ( path.length - 1 ) && twice) {
 							clearInterval(handle);
-						} else if(i === path.length - 1) {
+						} else if(i >= ( path.length - 1 )) {
 							twice = true;
 							i = 1;
 							n++;
