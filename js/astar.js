@@ -2,8 +2,20 @@ function AStar (grid, start, end, diagonals) {
 	this.grid = grid;
 	this.start = start;
 	this.target = end;
-	this.diagonals = diagonals;
+	this.diagonals = diagonals; // allow diagonals or not
 }
+
+AStar.prototype.euclidean = function(current, target) {
+	return Math.floor(10*Math.sqrt(Math.pow((current.x - target.x), 2) + Math.pow((current.y - target.y), 2)));
+};
+
+AStar.prototype.manhattan = function(current, target) {
+    return Math.floor(10*Math.abs(current.x - target.x) + Math.abs(current.y - target.y));
+};
+
+AStar.prototype.diagonal = function(current, target){
+	return Math.floor(10*Math.max(Math.abs(current.x-target.x), Math.abs(current.y-target.y)));
+};
 
 AStar.prototype.path = function() {
 	var open = [];
@@ -14,12 +26,12 @@ AStar.prototype.path = function() {
 
 	while(open.length > 0) {
 		var currNode = open[0];
-		open.map(function (node) {
-			if(node.f < currNode.f)
-				currNode = node;
-		});
+		for ( var n = 0; n < open.length; n++ ) {
+			if(open[n].f < currNode.f)
+				currNode = open[n];
+		}
+
 		if (this.target.pos === currNode.pos) {
-			
 			var c = currNode;
 			while(c.parent) {
 				path.push(c);
@@ -31,46 +43,27 @@ AStar.prototype.path = function() {
 
 		// remove current node with lowest f from open and move to closed
 		var index = open.indexOf(currNode);
-		if (index > -1) 
-			open.splice(index, 1);
+		open.splice(index, 1);
 
 		closed.push(currNode);
 
-		// for each neighbor
-		var adjNodes = this.adjacentNodes(currNode);
-		var diagNodes = [];
+		// for each neighbor do some stuff
+		var neighbors = this.adjacentNodes(currNode);
 
 		if(this.diagonals) {
-			diagNodes = this.diagonalNodes(currNode);
+			neighbors = neighbors.concat(this.diagonalNodes(currNode));
 		}
 
-		for ( var n = 0; n < adjNodes.length; n++ ) {
-			var g = currNode.g + 1;
-			this.updateNode(adjNodes[n], currNode, g, open, closed);
-		}
-
-		for ( var d = 0; d < diagNodes.length; d++ ) {
-			var g = currNode.g + 1.414;
-			this.updateNode(diagNodes[d], currNode, g, open, closed);
+		for ( var n = 0; n < neighbors.length; n++ ) {
+			var g = currNode.g + this.euclidean(currNode.pos, neighbors[n].pos);
+			this.updateNode(neighbors[n], currNode, g, open, closed);
 		}
 	}
 
 	return path;
 };
 
-AStar.prototype.manhattan = function(current, target) {
-    return Math.abs(current.x - target.x) + Math.abs(current.y - target.y);
-};
-
-AStar.prototype.diagonal = function(current, target){
-	return Math.max(Math.abs(current.x-target.x), Math.abs(current.y-target.y));
-};
-
-AStar.prototype.euclidean = function(current, target) {
-	return Math.sqrt(Math.pow((current.x - target.x), 2) + Math.pow((current.y - target.y), 2));
-};
-		
-
+// update g, h, and f of node if it is a legal move and not already in closed list
 AStar.prototype.updateNode = function(node, parent, g, open, closed) {
 	var update = false;
 	if(node.legal && closed.indexOf(node) < 0) {
@@ -83,13 +76,14 @@ AStar.prototype.updateNode = function(node, parent, g, open, closed) {
 	}
 	if(update) {
 		node.g = g;
-		node.h = node.h || (this.diagonals) ? this.euclidean(node.pos, this.target.pos) : this.manhattan(node.pos, this.target.pos);
+		node.h = this.euclidean(node.pos, this.target.pos);
 		
 		node.f = node.g + node.h;
 		node.parent = parent;
 	}
 };
 
+// get neighboring nodes (N, S, E, W)
 AStar.prototype.adjacentNodes = function(node) {
 	var x = node.pos.x;
 	var y = node.pos.y;
@@ -118,6 +112,7 @@ AStar.prototype.adjacentNodes = function(node) {
 
 };
 
+// get neighboring diagonal nodes (NE, SE, SW, NW)
 AStar.prototype.diagonalNodes = function (node) {
 	var x = node.pos.x;
 	var y = node.pos.y;
